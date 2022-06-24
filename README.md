@@ -66,7 +66,7 @@ kubectl exec -it mongodb-replica-2 -n default -- mongo
 rs0:SECONDARY> rs.secondaryOk()
 
 rs0:SECONDARY> db.release.find();
-{ "_id" : ObjectId("62b49e06193ee3df1645594c"), "name" : "hutt", "year" : 2020 }
+{ "_id" : ObjectId("62b49e06193ee3df1645594c"), "name" : "sunrise", "year" : 2020 }
 
 rs0:SECONDARY>
 ```
