@@ -14,7 +14,10 @@ MongoDB Sharded cluster consists of three components.
 ![Sharding 1](diagrams/mongodb-sharding-architecture.png)
 
 
-#### Create MongoDB Cluster
+### Create MongoDB Cluster
+
+
+#### Config Nodes
 
 
 **Create configuration nodes**
@@ -32,6 +35,10 @@ CMD='rs.initiate({ _id : "cfgrs", configsvr: true, members: [{ _id : 0, host : "
 
 kubectl exec -it mongocfg-0 -- bash -c "mongo --port 27019 --eval '$CMD'"
 ```
+
+
+#### Data Nodes
+
 
 **Create 3 shards (data nodes)**
 
@@ -73,6 +80,8 @@ echo $CMD
 kubectl exec -it mongo-shard-3-0 -- bash -c "mongo --eval '$CMD'"
 ```
 
+#### Router Nodes
+
 
 **Create Query Router nodes**
 
@@ -98,7 +107,7 @@ kubectl exec -it mongos-0 -- bash -c "mongo --eval '$CMD'"
 ```
 
 
-#### Verify sharding
+#### Verify Cluster status
 
 ```
 kubectl exec -it mongos-0 -n default -- mongo
@@ -110,7 +119,7 @@ kubectl exec -it mongos-1 -n default -- mongo
 sh.status()
 ```
 
-#### Enable sharding and test 
+#### Enable collection sharding and test  
 
 Once the Sharded Cluster has been set up, Sharding for the required database has to be enabled. 
 
