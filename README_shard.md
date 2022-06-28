@@ -43,9 +43,9 @@ kubectl exec -it mongocfg-0 -- bash -c "mongo --port 27019 --eval '$CMD'"
 **Create 3 shards (data nodes)**
 
 ```
-kubectl apply -f mongo_shard_1.yaml
-kubectl apply -f mongo_shard_2.yaml
-kubectl apply -f mongo_shard_3.yaml
+kubectl apply -f shards/mongo_shard_1.yaml
+kubectl apply -f shards/mongo_shard_2.yaml
+kubectl apply -f shards/mongo_shard_3.yaml
 ```
 
 **Create replicaset for each shard**
@@ -86,7 +86,7 @@ kubectl exec -it mongo-shard-3-0 -- bash -c "mongo --eval '$CMD'"
 **Create Query Router nodes**
 
 ```
-kubectl create -f mongo_router.yaml
+kubectl create -f shards/mongo_router.yaml
 ```
 
 **Add shards to the router node**
