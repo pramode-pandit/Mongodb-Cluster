@@ -8,4 +8,4 @@ rs.reconfig(cfg)
 rs.add("mongodb-replica-1.mongo:27017")
 rs.add("mongodb-replica-2.mongo:27017")
 rs.status()
-
+exit
