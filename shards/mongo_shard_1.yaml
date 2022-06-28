@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-shard-1
+  labels:
+    name: mongo-shard-1
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  clusterIP: None
+  selector:
+    app: mongo-shard-1
+---
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo-shard-1
+  namespace: default
+spec:
+  serviceName: mongo-shard-1
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongo-shard-1
+  template:
+    metadata:
+      labels:
+        app: mongo-shard-1
+    spec:
+      containers:
+      - name: mongodb
+        image: docker.io/mongo:4.2
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        command: ["mongod"]
+        args: ["--replSet", "rs1", "--dbpath","/data/db", "--noauth", "--shardsvr", "--port", "27017", "--bind_ip_all"]
+        resources:
+          limits:
+            cpu: 1
+            memory: 1500Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+        ports:
+        - name: port
+          containerPort: 27017
+        volumeMounts:
+        - name: mongo-shard-1-data
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-shard-1-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: # using the default "standard"
+      resources:
+        requests:
+          storage: 2Gi

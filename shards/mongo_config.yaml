@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongocfg1
+  labels:
+    run: mongocfg1
+spec:
+  ports:
+  - port: 27019
+    protocol: TCP
+  selector:
+    statefulset.kubernetes.io/pod-name: mongocfg-0
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongocfg2
+  labels:
+    run: mongocfg2
+spec:
+  ports:
+  - port: 27019
+    protocol: TCP
+  selector:
+    statefulset.kubernetes.io/pod-name: mongocfg-1
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongocfg3
+  labels:
+    run: mongocfg3
+spec:
+  ports:
+  - port: 27019
+    protocol: TCP
+  selector:
+    statefulset.kubernetes.io/pod-name: mongocfg-2
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongocfg
+  labels:
+    run: mongocfg
+spec:
+  ports:
+    - port: 27019
+      targetPort: 27019
+  clusterIP: None
+  selector:
+    app: mongocfg
+---
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongocfg
+spec:
+  serviceName: mongocfg
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongocfg
+  template:
+    metadata:
+      labels:
+        app: mongocfg
+    spec:
+      containers:
+      - name: mongocfg
+        image: docker.io/mongo:4.2
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        command: ["/bin/sh"]
+        args: ["-c", "mongod --replSet cfgrs --dbpath /data/db --configsvr --noauth --bind_ip_all"]
+        resources:
+          limits:
+            cpu: 1
+            memory: 1500Mi
+          requests:
+            cpu: 100m
+            memory: 500Mi
+        ports:
+        - name: mongocfg-port
+          containerPort: 27019
+        volumeMounts:
+        - name: mongocfg-data
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: mongocfg-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: # using the default "standard"
+      resources:
+        requests:
+          storage: 2Gi
+---
+---
