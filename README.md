@@ -1,5 +1,5 @@
 
-#### Replication
+#### MomgoDB Replication Cluster
 
 MongoDB replication is the process of creating a copy of the same data set in more than one MongoDB server. This can be achieved by using a Replica Set. 
 
@@ -27,7 +27,7 @@ After a failed node is recovered, it rejoins the replica set and becomes a secon
 
 ![Replication 1](diagrams/replication-1.png)
 
-**Initializing the Replica Set**
+**Create replication nodes**
 
 ```
 kubectl apply -f replicaset/rbac.yaml
@@ -35,9 +35,26 @@ kubectl apply -f replicaset/svc.yaml
 kubectl apply -f replicaset/sts.yaml
 ```
 
+
+**Configure replication**
+
+Connect to the replica-0 instance of mongo
+
+`kubectl exec -it mongodb-replica-0 -n default -- mongo`
+
+Run the bewlow commands to configure replication
+
 ```
-sh replicaset/post-install.sh
+rs.initiate()
+var cfg = rs.conf()
+cfg.members[0].host="mongodb-replica-0.mongo:27017"
+rs.reconfig(cfg)
+rs.add("mongodb-replica-1.mongo:27017")
+rs.add("mongodb-replica-2.mongo:27017")
+rs.status()
+exit
 ```
+
 
 **Testing Replication**
 
@@ -68,5 +85,5 @@ rs0:SECONDARY> rs.secondaryOk()
 rs0:SECONDARY> db.release.find();
 { "_id" : ObjectId("62b49e06193ee3df1645594c"), "name" : "sunrise", "year" : 2020 }
 
-rs0:SECONDARY>
+rs0:SECONDARY> exit
 ```
